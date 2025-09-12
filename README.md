@@ -29,7 +29,7 @@
 ## 🎬 Live Demo
 
 <div align="center">
-[![Watch Demo](https://img.youtube.com/vi/your-video-id/0.jpg)](https://www.youtube.com/watch?v=your-video-id)
+[![Watch Demo](https://drive.google.com/file/d/1Qvm7ca4vEgnRlrRNjC4HnOcZWg4EtSru/view?t=5)](https://drive.google.com/file/d/1Qvm7ca4vEgnRlrRNjC4HnOcZWg4EtSru/view?t=5)
 
 *Complete walkthrough of Agro Cast AI with real-time crop & climate forecasting*
 </div>
@@ -38,7 +38,7 @@
 
 | Dashboard Overview | AI Prediction | Geospatial Insights | Economic Dashboard |
 |-------------------|---------------|---------------------|-------------------|
-| ![Dashboard](https://via.placeholder.com/300x200?text=Dashboard+View) | ![Prediction](https://via.placeholder.com/300x200?text=AI+Prediction) | ![Geo](https://via.placeholder.com/300x200?text=Geospatial+View) | ![Market](https://via.placeholder.com/300x200?text=Market+Trends) |
+| ![Dashboard](https://drive.google.com/drive/folders/1oaIxwKjPYQ7vfBxWsR2BU7TOOEuBr4ay?dmr=1&ec=wgc-drive-globalnav-goto) | ![Prediction](https://drive.google.com/drive/folders/1oaIxwKjPYQ7vfBxWsR2BU7TOOEuBr4ay?dmr=1&ec=wgc-drive-globalnav-goto) | ![Insights](https://drive.google.com/drive/folders/1oaIxwKjPYQ7vfBxWsR2BU7TOOEuBr4ay?dmr=1&ec=wgc-drive-globalnav-goto) | ![Market](https://drive.google.com/drive/folders/1oaIxwKjPYQ7vfBxWsR2BU7TOOEuBr4ay?dmr=1&ec=wgc-drive-globalnav-goto) |
 
 ## 🌟 Revolutionary Features
 
@@ -244,7 +244,7 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 ## 📞 Contact
 
-Project Link: [https://github.com/yourusername/agro-cast-ai](https://github.com/yourusername/agro-cast-ai)
+Project Link: [https://github.com/noisyboy08/AGRO-CAST-AI.git](https://github.com/noisyboy08/AGRO-CAST-AI.git)
 
 ## 🙏 Acknowledgments
 - [FAO](https://www.fao.org/) for agricultural datasets
@@ -256,3 +256,4 @@ Project Link: [https://github.com/yourusername/agro-cast-ai](https://github.com/
   <p>Built with ❤️ for sustainable agriculture</p>
   <p>Give a ⭐ if this project helped you!</p>
 </div>
+
