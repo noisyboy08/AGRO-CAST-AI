@@ -81,16 +81,20 @@ const Dashboard = () => {
 
         {/* Enhanced Dashboard with Tabs */}
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-8">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="health">Crop Health</TabsTrigger>
-            <TabsTrigger value="timeline">Timeline</TabsTrigger>
-            <TabsTrigger value="irrigation">Irrigation</TabsTrigger>
-            <TabsTrigger value="disease">Disease Detection</TabsTrigger>
-            <TabsTrigger value="market">Market Prices</TabsTrigger>
-            <TabsTrigger value="marketplace">Marketplace</TabsTrigger>
-            <TabsTrigger value="gamified">Achievements</TabsTrigger>
-          </TabsList>
+          <div className="-mx-4 sm:mx-0">
+            <div className="overflow-x-auto no-scrollbar px-4 sm:px-0">
+              <TabsList className="grid grid-flow-col auto-cols-max gap-2 md:grid-cols-8">
+                <TabsTrigger value="overview">Overview</TabsTrigger>
+                <TabsTrigger value="health">Crop Health</TabsTrigger>
+                <TabsTrigger value="timeline">Timeline</TabsTrigger>
+                <TabsTrigger value="irrigation">Irrigation</TabsTrigger>
+                <TabsTrigger value="disease">Disease Detection</TabsTrigger>
+                <TabsTrigger value="market">Market Prices</TabsTrigger>
+                <TabsTrigger value="marketplace">Marketplace</TabsTrigger>
+                <TabsTrigger value="gamified">Achievements</TabsTrigger>
+              </TabsList>
+            </div>
+          </div>
 
           <TabsContent value="overview" className="space-y-8">
             {/* Charts Section */}

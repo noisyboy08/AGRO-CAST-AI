@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import LandingPage from './pages/LandingPage';
 import Dashboard from './pages/Dashboard';
@@ -7,7 +7,7 @@ import YieldPredictor from './pages/YieldPredictor';
 import EnergyCalculator from './pages/EnergyCalculator';
 import Insights from './pages/Insights';
 import { AppProvider } from './context/AppContext';
-import { ThemeProvider } from './context/ThemeContext';
+import { ThemeProvider, useTheme } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
 import { VoiceProvider } from './context/VoiceContext';
 import EconomicInsights from './components/EconomicInsights';
@@ -26,6 +26,32 @@ if ('serviceWorker' in navigator) {
   });
 }
 
+function VoiceActionsBridge() {
+  const navigate = useNavigate();
+  const { setTheme, toggleTheme } = useTheme();
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const ce = e as CustomEvent<any>;
+      const detail = ce.detail || {};
+      if (detail.intent === 'navigate' && detail.payload?.to) {
+        navigate(detail.payload.to);
+      } else if (detail.intent === 'theme') {
+        if (detail.payload?.mode) {
+          setTheme(detail.payload.mode);
+        } else {
+          toggleTheme();
+        }
+      }
+    };
+
+    document.addEventListener('voice:command', handler as EventListener);
+    return () => document.removeEventListener('voice:command', handler as EventListener);
+  }, [navigate, setTheme, toggleTheme]);
+
+  return null;
+}
+
 function App() {
   return (
     <ThemeProvider>
@@ -33,6 +59,7 @@ function App() {
         <VoiceProvider>
           <AppProvider>
             <Router>
+              <VoiceActionsBridge />
               <div className="min-h-screen bg-gray-50 dark:bg-slate-900 transition-colors duration-300">
                 <Navbar />
                 <Routes>

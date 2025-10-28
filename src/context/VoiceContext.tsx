@@ -1,4 +1,9 @@
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useCallback, ReactNode, useRef } from 'react';
+
+interface VoiceCommandEventDetail {
+  intent: 'navigate' | 'weather' | 'yield' | 'irrigation' | 'market' | 'theme' | 'unknown';
+  payload?: any;
+}
 
 interface VoiceContextType {
   isListening: boolean;
@@ -16,31 +21,28 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const recognitionRef = useRef<any | null>(null);
 
   const isSupported = 'webkitSpeechRecognition' in window || 'SpeechRecognition' in window;
 
-  const startListening = useCallback(() => {
-    if (!isSupported) return;
-
-    const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
+  const ensureRecognition = useCallback(() => {
+    if (!isSupported) return null;
+    if (recognitionRef.current) return recognitionRef.current;
+    const SpeechRecognition: any = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
     const recognition = new SpeechRecognition();
-
     recognition.continuous = false;
     recognition.interimResults = false;
     recognition.lang = 'en-US';
 
-    recognition.onstart = () => {
-      setIsListening(true);
+    recognition.onstart = () => setIsListening(true);
+
+    recognition.onresult = (event: any) => {
+      const phrase = event.results?.[0]?.[0]?.transcript || '';
+      setTranscript(phrase);
+      handleVoiceCommand(phrase);
     };
 
-    recognition.onresult = (event) => {
-      const transcript = event.results[0][0].transcript;
-      setTranscript(transcript);
-      handleVoiceCommand(transcript);
-    };
-
-    recognition.onerror = (event) => {
-      console.error('Speech recognition error:', event.error);
+    recognition.onerror = () => {
       setIsListening(false);
     };
 
@@ -48,10 +50,31 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
       setIsListening(false);
     };
 
-    recognition.start();
+    recognitionRef.current = recognition;
+    return recognition;
   }, [isSupported]);
 
+  const startListening = useCallback(() => {
+    const recognition = ensureRecognition();
+    if (!recognition) return;
+    try {
+      recognition.start();
+    } catch {
+      // no-op if already started
+    }
+  }, [ensureRecognition]);
+
   const stopListening = useCallback(() => {
+    const recognition = recognitionRef.current;
+    if (!recognition) {
+      setIsListening(false);
+      return;
+    }
+    try {
+      recognition.stop();
+    } catch {
+      // ignore
+    }
     setIsListening(false);
   }, []);
 
@@ -65,20 +88,69 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const dispatchVoiceEvent = (detail: VoiceCommandEventDetail) => {
+    document.dispatchEvent(new CustomEvent<VoiceCommandEventDetail>('voice:command', { detail }));
+  };
+
   const handleVoiceCommand = (command: string) => {
-    const lowerCommand = command.toLowerCase();
-    
-    if (lowerCommand.includes('weather')) {
-      speak('Today\'s weather shows 25 degrees Celsius with 60% chance of rain. Perfect conditions for your corn crop.');
-    } else if (lowerCommand.includes('yield') || lowerCommand.includes('prediction')) {
-      speak('Your corn yield prediction is 8.5 tons per hectare this season, which is 15% above average.');
-    } else if (lowerCommand.includes('irrigation') || lowerCommand.includes('water')) {
-      speak('Based on soil moisture levels, I recommend irrigating your north field tomorrow morning for 45 minutes.');
-    } else if (lowerCommand.includes('price') || lowerCommand.includes('market')) {
-      speak('Current corn prices are $180 per ton. This is a good time to consider selling your harvest.');
-    } else {
-      speak('I can help you with weather forecasts, yield predictions, irrigation advice, and market prices. What would you like to know?');
+    const lower = command.toLowerCase().trim();
+
+    // Navigation intents
+    if (/(go|navigate).*(home)/.test(lower)) {
+      dispatchVoiceEvent({ intent: 'navigate', payload: { to: '/' } });
+      speak('Navigating to home');
+      return;
     }
+    if (/(go|navigate).*(dashboard)/.test(lower)) {
+      dispatchVoiceEvent({ intent: 'navigate', payload: { to: '/dashboard' } });
+      speak('Opening dashboard');
+      return;
+    }
+    if (/predict(or)?|yield.*predict/.test(lower)) {
+      dispatchVoiceEvent({ intent: 'navigate', payload: { to: '/yield-predictor' } });
+      speak('Opening yield predictor');
+      return;
+    }
+    if (/energy|calculator/.test(lower)) {
+      dispatchVoiceEvent({ intent: 'navigate', payload: { to: '/energy-calculator' } });
+      speak('Opening energy calculator');
+      return;
+    }
+    if (/market( price| price(s)?)/.test(lower)) {
+      dispatchVoiceEvent({ intent: 'navigate', payload: { to: '/market-prices' } });
+      speak('Showing market prices');
+      return;
+    }
+
+    // Feature intents
+    if (lower.includes('weather')) {
+      dispatchVoiceEvent({ intent: 'weather' });
+      speak("Today's weather shows 25 degrees with a chance of rain.");
+      return;
+    }
+    if (lower.includes('yield') || lower.includes('prediction')) {
+      dispatchVoiceEvent({ intent: 'yield' });
+      speak('Your average predicted yield is 8.5 tons per hectare.');
+      return;
+    }
+    if (lower.includes('irrigation') || lower.includes('water')) {
+      dispatchVoiceEvent({ intent: 'irrigation' });
+      speak('I recommend irrigating tomorrow morning for 45 minutes.');
+      return;
+    }
+    if (lower.includes('price') || lower.includes('market')) {
+      dispatchVoiceEvent({ intent: 'market' });
+      speak('Corn is currently at 180 dollars per ton.');
+      return;
+    }
+    if (lower.includes('dark') || lower.includes('light') || lower.includes('theme')) {
+      dispatchVoiceEvent({ intent: 'theme', payload: { mode: lower.includes('dark') ? 'dark' : 'light' } });
+      speak('Toggling theme');
+      return;
+    }
+
+    dispatchVoiceEvent({ intent: 'unknown' });
+    speak('I can help with navigation, weather, yield, irrigation and market prices.');
   };
 
   return (
